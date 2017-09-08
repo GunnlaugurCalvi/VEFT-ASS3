@@ -60,5 +60,9 @@ namespace CoursesApi.Services
         {
             return _repo.AddCourse(newCourse);
         }
+       /* public StudentDTO AddToWaitingList(int courseId, StudentViewModel waiting)
+        {
+            return _repo.AddToWaitingList(courseId, waiting);
+        }*/
     }
 }

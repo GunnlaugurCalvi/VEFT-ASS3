@@ -8,6 +8,14 @@ using CoursesApi.Models.ViewModels;
 
 namespace CoursesApi.Repositories
 {
+    public class DuplicateException : Exception
+    {
+        public DuplicateException() : base("I've Duplicated everywhere in space and cannot found this -Borat") { }
+    }
+    public class AlreadyExistsException : Exception
+    {
+        public AlreadyExistsException() : base("I've Exists everywhere in space and cannot found this -Borat") { }
+    }
     public class CoursesRepository : ICoursesRepository
     {
         private AppDataContext _db;
@@ -115,7 +123,7 @@ namespace CoursesApi.Repositories
             }
 
             _db.Enrollments.Add( 
-                new Enrollment {CourseId = courseId, StudentSSN = newStudent.SSN}
+                new Enrollment {CourseId = courseId, StudentSSN = newStudent.SSN, Status = "Enrolled"}
             );
             _db.SaveChanges();
 
@@ -166,6 +174,28 @@ namespace CoursesApi.Repositories
                     }).ToList()
             };
         }
+       /*public StudentDTO AddToWaitingList(int courseId, StudentViewModel waiting)
+       {
+            var studentDuplicate = (from c in _db.Enrollments
+                         where c.Id == courseId &&
+                         c.StudentSSN == waiting.SSN
+                          select c).SingleOrDefault();
+            
+            var studentAlreadyInDatabase = (from c in _db.Students
+                                            where c.SSN == waiting.SSN
+                                            select c ).SingleOrDefault();
+            
+            if(studentDuplicate == null)
+            {
+                throw new DuplicateException();
+            }
+            if(studentAlreadyInDatabase == null)
+            {
+                throw new AlreadyExistsException();
+            }
+           return 
+       }*/
+
     }
 } 
            

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CoursesApi.Models.DTOModels;
+using CoursesApi.Models.EntityModels;
 using CoursesApi.Models.ViewModels;
 using CoursesApi.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -149,5 +150,26 @@ namespace Api.Controllers
 
             return NoContent();
         }
+        /*[HttpPost]
+        [Route("{id:int}/waitinglist")]
+        public IActionResult AddToWaitingList(int courseId, [FromBody] StudentViewModel waiting){
+            if (waiting == null) { return BadRequest(); }
+            if (!ModelState.IsValid) { return StatusCode(412); }
+            
+            var response = _coursesService.AddToWaitingList(courseId, waiting);
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(response);
+        }*/
+
+        /*[HttpGet]
+        [Route("{id:int}/waitinglist")]
+        public IActionResult GetWaitingList(){
+
+        }*/
     }
 }

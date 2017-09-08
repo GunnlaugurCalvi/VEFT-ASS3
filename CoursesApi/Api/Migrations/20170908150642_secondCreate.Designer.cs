@@ -11,9 +11,10 @@ using System;
 namespace Api.Migrations
 {
     [DbContext(typeof(AppDataContext))]
-    partial class AppDataContextModelSnapshot : ModelSnapshot
+    [Migration("20170908150642_secondCreate")]
+    partial class secondCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,8 +60,6 @@ namespace Api.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<int>("CourseId");
-
-                    b.Property<string>("Status");
 
                     b.Property<string>("StudentSSN");
 

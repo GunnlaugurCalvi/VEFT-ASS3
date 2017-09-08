@@ -20,5 +20,10 @@ namespace CoursesApi.Models.EntityModels
         /// </summary>
         /// <returns></returns>
         public string StudentSSN { get; set; }
+        /// <summary>
+        /// Enrollment status of a student 
+        /// </summary>
+        /// <returns></returns>
+        public string Status { get; set; }
     }
 }

@@ -470,11 +470,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\gulli\\Documents\\Vefthjonustur\\CoursesApi\\CoursesApi\\Models\\Models.csproj",
+      "projectUniqueName": "C:\\Users\\gulli\\Documents\\Vefthjonustur\\VEFT-ASS3\\CoursesApi\\Models\\Models.csproj",
       "projectName": "Models",
-      "projectPath": "C:\\Users\\gulli\\Documents\\Vefthjonustur\\CoursesApi\\CoursesApi\\Models\\Models.csproj",
+      "projectPath": "C:\\Users\\gulli\\Documents\\Vefthjonustur\\VEFT-ASS3\\CoursesApi\\Models\\Models.csproj",
       "packagesPath": "C:\\Users\\gulli\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\gulli\\Documents\\Vefthjonustur\\CoursesApi\\CoursesApi\\Models\\obj\\",
+      "outputPath": "C:\\Users\\gulli\\Documents\\Vefthjonustur\\VEFT-ASS3\\CoursesApi\\Models\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
