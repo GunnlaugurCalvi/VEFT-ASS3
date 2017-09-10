@@ -3585,11 +3585,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Repositories\\Repositories.csproj",
+      "projectUniqueName": "c:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Repositories\\Repositories.csproj",
       "projectName": "Repositories",
-      "projectPath": "C:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Repositories\\Repositories.csproj",
+      "projectPath": "c:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Repositories\\Repositories.csproj",
       "packagesPath": "C:\\Users\\LAIART\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Repositories\\obj\\",
+      "outputPath": "c:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Repositories\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -3608,8 +3608,8 @@
       "frameworks": {
         "netstandard2.0": {
           "projectReferences": {
-            "C:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Models\\Models.csproj": {
-              "projectPath": "C:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Models\\Models.csproj"
+            "c:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Models\\Models.csproj": {
+              "projectPath": "c:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Models\\Models.csproj"
             }
           }
         }

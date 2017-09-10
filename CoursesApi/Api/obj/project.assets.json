@@ -12646,11 +12646,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Api\\Api.csproj",
+      "projectUniqueName": "c:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Api\\Api.csproj",
       "projectName": "Api",
-      "projectPath": "C:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Api\\Api.csproj",
+      "projectPath": "c:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Api\\Api.csproj",
       "packagesPath": "C:\\Users\\LAIART\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Api\\obj\\",
+      "outputPath": "c:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Api\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -12669,14 +12669,14 @@
       "frameworks": {
         "netcoreapp2.0": {
           "projectReferences": {
-            "C:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Models\\Models.csproj": {
-              "projectPath": "C:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Models\\Models.csproj"
+            "c:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Models\\Models.csproj": {
+              "projectPath": "c:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Models\\Models.csproj"
             },
-            "C:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Services\\Services.csproj": {
-              "projectPath": "C:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Services\\Services.csproj"
+            "c:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Services\\Services.csproj": {
+              "projectPath": "c:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Services\\Services.csproj"
             },
-            "C:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Repositories\\Repositories.csproj": {
-              "projectPath": "C:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Repositories\\Repositories.csproj"
+            "c:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Repositories\\Repositories.csproj": {
+              "projectPath": "c:\\Users\\LAIART\\Documents\\HR\\Vefþjónustur\\Verkefni3\\VEFT-ASS3\\CoursesApi\\Repositories\\Repositories.csproj"
             }
           }
         }

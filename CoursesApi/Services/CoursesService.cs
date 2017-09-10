@@ -72,5 +72,10 @@ namespace CoursesApi.Services
         {
             return _repo.AddToWaitingList(courseId, waiting);
         }
+
+        public IEnumerable<StudentListItemDTO> GetWaitingList(int courseId)
+       {
+           return _repo.GetWaitingList(courseId);
+       }
     }
 }

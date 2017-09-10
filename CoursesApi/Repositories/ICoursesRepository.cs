@@ -15,6 +15,8 @@ namespace CoursesApi.Repositories
         bool DeleteCourseById(int courseId);
         bool DeleteStudentFromCourseById(int courseId, StudentViewModel deleteStudent);
         StudentDTO AddToWaitingList(int courseId, StudentViewModel waiting);
+        IEnumerable<StudentListItemDTO> GetWaitingList(int courseId);
+
     }
 }
 

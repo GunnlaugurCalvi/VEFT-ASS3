@@ -249,38 +249,43 @@ namespace CoursesApi.Repositories
                 throw new StudentNotExistsException();
             }
 
-            // Student cannot already be a registered user in course
-            // Checking if student in already in course either
-            // "Enrolled" or "Waiting"
-            var courseDublicate = (from c in _db.Enrollments
-                                            where c.StudentSSN == waiting.SSN &&
-                                            c.Id == courseId &&
-                                            c.Status == "Enrolled"
+            // Check if course exist
+            var courseExistsInDatabase = (from c in _db.Courses
+                                            where c.Id == courseId
                                             select c ).SingleOrDefault();
-           
-            // If the student is already registered in
-            // the specified course
+                                            
+            // If the course does not exist
             // Throw exception
-            if(courseDublicate != null)
+            if(courseExistsInDatabase == null)
             {
-                throw new DublicateEnrolledException();
+                throw new CourseNotExistsException();
             }
 
-            // Student cannot already exist on the waiting list
-            // Check if student exists on waiting list
-            var studentDuplicate = (from c in _db.Enrollments
-                         where c.Id == courseId &&
-                         c.StudentSSN == waiting.SSN &&
-                         c.Status == "Waiting"
-                          select c).SingleOrDefault();
-
-            // If the student is already registered in
-            // the waiting list for course
+            // Check if student is already on waiting list                  
+            var StudentExistsInWaitinglist = (from c in _db.Enrollments
+                                            where c.StudentSSN == waiting.SSN &&
+                                            c.CourseId == courseId &&
+                                            c.Status == "Waiting"
+                                            select c ).SingleOrDefault();
+            // If the student is on the waiting list
             // Throw exception
-            if(studentDuplicate != null)
+            if(StudentExistsInWaitinglist != null)
             {
                 throw new DuplicateWaitingException();
             }
+
+            // Check if student is already Enrolled in course
+            var StudentExistsEnrolled = (from c in _db.Enrollments
+                                            where c.StudentSSN == waiting.SSN &&
+                                            c.CourseId == courseId &&
+                                            c.Status == "Enrolled"
+                                            select c ).SingleOrDefault();
+            // If the student is enrolled in course
+            // Throw exception
+            if(StudentExistsEnrolled != null)
+            {
+                throw new DublicateEnrolledException();
+            }       
             
             _db.Enrollments.Add( 
                 new Enrollment {CourseId = courseId , StudentSSN = waiting.SSN, Status = "Waiting"}
@@ -350,7 +355,30 @@ namespace CoursesApi.Repositories
 
             return true;
         }
+       public IEnumerable<StudentListItemDTO> GetWaitingList(int courseId)
+       {
+           var studentsInWaitingList = (from c in _db.Enrollments
+                                       join t in _db.Students on c.StudentSSN equals t.SSN
+                                       where courseId == c.CourseId &&
+                                       c.Status == "Waiting"
+                                       select new StudentListItemDTO
+                                       {
+                                           Name = t.Name
+                                      
+                                       }).ToList();
 
+           // Check if course exists in database
+           var courseExistsInDatabase = (from c in _db.Courses
+                                        where c.Id == courseId
+                                        select c).SingleOrDefault();
+          
+           if(courseExistsInDatabase == null)
+           {
+               throw new CourseNotExistsException();
+           }
+          
+           return studentsInWaitingList;
+       }
     }
 } 
            
