@@ -57,13 +57,13 @@ namespace CoursesApi.Repositories
                            join s in _db.Students on sr.StudentSSN equals s.SSN
                            select new StudentDTO
                            {
-                               SSN = s.SSN,
-                               Name = s.Name
-                           }).ToList()
+                                Name = s.Name,
+                                SSN = s.SSN
+                           }).ToList(),
+                MaxStudents = _db.Courses.FirstOrDefault(ct => ct.Id == courseId).MaxStudents
             };
 
             return result;
-
         }
         public CourseDetailsDTO UpdateCourse(int courseId, CourseViewModel updatedCourse)
         {
@@ -97,8 +97,8 @@ namespace CoursesApi.Repositories
                             join s in _db.Students on sr.StudentSSN equals s.SSN
                             select new StudentDTO
                             {
-                                SSN = s.SSN,
-                                Name = s.Name
+                                Name = s.Name,
+                                SSN = s.SSN
                             }).ToList();
 
             return students;
@@ -127,6 +127,18 @@ namespace CoursesApi.Repositories
                 throw new CourseNotExistsException();
             }
 
+            // Check if student is already enrolled in course
+            var studentIsEnrolled = (from c in _db.Enrollments
+                                    where c.StudentSSN == newStudent.SSN &&
+                                    c.CourseId == courseId &&
+                                    c.Status == "Enrolled"
+                                    select c ).SingleOrDefault();
+
+            if(studentIsEnrolled != null)
+            {
+                throw new DublicateEnrolledException();
+            }
+
             // Check course max capacity
             var studentCapacity =   (from c in _db.Courses
                                                 where c.Id == courseId
@@ -143,17 +155,7 @@ namespace CoursesApi.Repositories
                 throw new MaxCapacityException();
             }      
 
-            // Check if student is already enrolled in course
-            var studentIsEnrolled = (from c in _db.Enrollments
-                                    where c.StudentSSN == newStudent.SSN &&
-                                    c.CourseId == courseId &&
-                                    c.Status == "Enrolled"
-                                    select c ).SingleOrDefault();
-
-            if(studentIsEnrolled != null)
-            {
-                throw new DublicateEnrolledException();
-            }
+            
 
             // Check if student is already on the waiting list
             // before enrolling him
@@ -215,7 +217,13 @@ namespace CoursesApi.Repositories
 
         public CourseDetailsDTO AddCourse(CourseViewModel newCourse)
         {
-            var entity = new Course { CourseTemplate = newCourse.CourseID, Semester = newCourse.Semester, StartDate = newCourse.StartDate, EndDate = newCourse.EndDate };
+            var entity = new Course {
+                 CourseTemplate = newCourse.CourseTemplate, 
+                 Semester = newCourse.Semester, 
+                 StartDate = newCourse.StartDate, 
+                 EndDate = newCourse.EndDate, 
+                 MaxStudents = newCourse.MaxStudents 
+            };
 
             _db.Courses.Add(entity);
             _db.SaveChanges();
@@ -223,7 +231,7 @@ namespace CoursesApi.Repositories
             return new CourseDetailsDTO 
             {
                 Id = entity.Id,
-                Name = _db.CourseTemplates.FirstOrDefault(ct => ct.Template == newCourse.CourseID).CourseName,
+                Name = _db.CourseTemplates.FirstOrDefault(ct => ct.Template == newCourse.CourseTemplate).CourseName,
                 StartDate = entity.StartDate,
                 EndDate = entity.EndDate,
                 Students = _db.Enrollments
@@ -232,7 +240,8 @@ namespace CoursesApi.Repositories
                     .Select(s => new StudentDTO {
                         SSN = s.SSN,
                         Name = s.Name
-                    }).ToList()
+                    }).ToList(),
+                MaxStudents = newCourse.MaxStudents
             };
         }
        
@@ -264,34 +273,39 @@ namespace CoursesApi.Repositories
             }
 
             // Check if student is already on waiting list                  
-            var StudentExistsInWaitinglist = (from c in _db.Enrollments
-                                            where c.StudentSSN == waiting.SSN &&
-                                            c.CourseId == courseId &&
-                                            c.Status == "Waiting"
-                                            select c ).SingleOrDefault();
+            var StudentStatus = (from c in _db.Enrollments
+                                where c.StudentSSN == waiting.SSN &&
+                                c.CourseId == courseId
+                                select c.Status).SingleOrDefault();
             // If the student is on the waiting list
             // Throw exception
-            if(StudentExistsInWaitinglist != null)
+                if(StudentStatus == "Waiting")
             {
                 throw new DuplicateWaitingException();
             }
 
-            // Check if student is already Enrolled in course
-            var StudentExistsEnrolled = (from c in _db.Enrollments
-                                            where c.StudentSSN == waiting.SSN &&
-                                            c.CourseId == courseId &&
-                                            c.Status == "Enrolled"
-                                            select c ).SingleOrDefault();
             // If the student is enrolled in course
             // Throw exception
-            if(StudentExistsEnrolled != null)
+            if(StudentStatus == "Enrolled")
             {
                 throw new DublicateEnrolledException();
-            }       
-            
-            _db.Enrollments.Add( 
-                new Enrollment {CourseId = courseId , StudentSSN = waiting.SSN, Status = "Waiting"}
-            );
+            }
+
+            if(StudentStatus == "Deleted")
+            {
+            var FindStudent = (from c in _db.Enrollments
+                                where c.StudentSSN == waiting.SSN &&
+                                c.CourseId == courseId
+                                select c).SingleOrDefault();
+                                
+                FindStudent.Status = "Waiting";
+                 _db.Enrollments.Update(FindStudent);
+            }else
+            {
+                 _db.Enrollments.Add( 
+                new Enrollment {CourseId = courseId , StudentSSN = waiting.SSN, Status = "Waiting"});
+            }
+
             _db.SaveChanges();
 
             return new StudentDTO
@@ -303,12 +317,12 @@ namespace CoursesApi.Repositories
             };
        }
 
-       public bool DeleteStudentFromCourseById(int courseId, StudentViewModel deleteStudent)
+       public bool DeleteStudentFromCourseById(int courseId, string ssn)
         {
-            // Student needs to be a registered user
+            // Student needs to be a registered user 
             // Check if student exists
             var studentExistsInDatabase = (from c in _db.Students
-                                            where c.SSN == deleteStudent.SSN
+                                            where c.SSN == ssn
                                             select c ).SingleOrDefault();
             
             if(studentExistsInDatabase == null)
@@ -328,7 +342,7 @@ namespace CoursesApi.Repositories
 
             // Check if student is already deleted in course
             var studentIsDeleted = (from c in _db.Enrollments
-                                    where c.StudentSSN == deleteStudent.SSN &&
+                                    where c.StudentSSN == ssn &&
                                     c.CourseId == courseId &&
                                     c.Status == "Deleted"
                                     select c ).SingleOrDefault();
@@ -340,7 +354,7 @@ namespace CoursesApi.Repositories
 
             // Check if student in enrolled
             var studentEnrolled = (from c in _db.Enrollments
-                                    where c.StudentSSN == deleteStudent.SSN &&
+                                    where c.StudentSSN == ssn &&
                                     c.CourseId == courseId &&
                                     c.Status == "Enrolled"
                                     select c ).SingleOrDefault();
@@ -357,15 +371,16 @@ namespace CoursesApi.Repositories
 
             return true;
         }
-       public IEnumerable<StudentListItemDTO> GetWaitingList(int courseId)
+       public IEnumerable<StudentDTO> GetWaitingList(int courseId)
        {
            var studentsInWaitingList = (from c in _db.Enrollments
                                        join t in _db.Students on c.StudentSSN equals t.SSN
                                        where courseId == c.CourseId &&
                                        c.Status == "Waiting"
-                                       select new StudentListItemDTO
+                                       select new StudentDTO
                                        {
-                                           Name = t.Name
+                                           Name = t.Name,
+                                           SSN = t.SSN
                                       
                                        }).ToList();
 

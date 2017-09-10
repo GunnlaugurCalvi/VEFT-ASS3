@@ -6,14 +6,15 @@ namespace CoursesApi.Models.DTOModels
     public class StudentDTO
     {
         /// <summary>
-        /// Social security number (kennitala) of the student
-        /// </summary>
-        /// <returns></returns>
-        public string SSN { get; set; }
-        /// <summary>
         /// The name of the student
         /// </summary>
         /// <returns></returns>
         public string Name { get; set; }
+        /// <summary>
+        /// Social security number (kennitala) of the student
+        /// </summary>
+        /// <returns></returns>
+        public string SSN { get; set; }
+
     }
 }

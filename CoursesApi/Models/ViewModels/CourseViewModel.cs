@@ -13,7 +13,7 @@ namespace CoursesApi.Models.ViewModels
         /// </summary>
         /// <returns></returns>
         [Required]
-        public string CourseID { get; set; }
+        public string CourseTemplate { get; set; }
         /// <summary>
         /// The semester the course is in
         /// </summary>
@@ -33,5 +33,12 @@ namespace CoursesApi.Models.ViewModels
         /// <returns></returns>
         [Required]
         public DateTime? EndDate { get; set; }
+        /// <summary>
+        /// Number of students in course
+        /// </summary>
+        /// <returns></returns>
+        [Required]
+        public int MaxStudents{ get; set; }
+
     }
 }

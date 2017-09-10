@@ -66,7 +66,7 @@ namespace Api.Controllers
 
             var newCourse = _coursesService.AddCourse(course);
 
-            return Ok(newCourse);
+            return Created(newCourse.Name, newCourse);
         }
 
         /// <summary>
@@ -128,20 +128,20 @@ namespace Api.Controllers
             try
             {
                 var response = _coursesService.AddStudentToCourse(courseId, newStudent);
-                return Ok(response);
+                return Created(response.SSN, response);
 
             }catch(CoursesApi.Models.Exceptions.StudentNotExistsException e)
             {
-                    return BadRequest(e);
+                    return NotFound(e.Message);
             }catch(CoursesApi.Models.Exceptions.CourseNotExistsException e)
             {
-                    return BadRequest(e);
+                    return NotFound(e.Message);
             }catch(CoursesApi.Models.Exceptions.DublicateEnrolledException e)
             {
-                    return BadRequest(e);
+                    return StatusCode(412, e.Message);
             }catch(CoursesApi.Models.Exceptions.MaxCapacityException e)
             {
-                    return BadRequest(e);
+                    return StatusCode(412, e.Message);
             }              
         }
 
@@ -171,38 +171,37 @@ namespace Api.Controllers
         /// <param name="deleteStudent">Student SSN</param>
         /// <returns>A status code 204 (if successful)</returns>
         [HttpDelete]
-        [Route("{courseId:int}/students")]
-        public IActionResult DeleteStudentFromCourse(int courseId, [FromBody] StudentViewModel deleteStudent)
+        [Route("{courseId:int}/students/{ssn}")]
+        public IActionResult DeleteStudentFromCourse(int courseId, string ssn)
         {
-            if (deleteStudent == null) { return BadRequest(); }
+            if (ssn == null) { return BadRequest(); }
             
             if (!ModelState.IsValid) { return StatusCode(412); }
 
             try
             {
-                    var success = _coursesService.DeleteStudentFromCourseById(courseId, deleteStudent);
+                    var success = _coursesService.DeleteStudentFromCourseById(courseId, ssn);
                     return NoContent();
                     
             }catch(CoursesApi.Models.Exceptions.StudentNotExistsException e)
             {
-                    return NotFound(e);
+                    return NotFound(e.Message);
             }catch(CoursesApi.Models.Exceptions.CourseNotExistsException e)
             {
-                    return NotFound(e);
+                    return NotFound(e.Message);
             }catch(CoursesApi.Models.Exceptions.StudentDeletedException e)
             {
-                    return BadRequest(e);
+                    return BadRequest(e.Message);
             }catch(CoursesApi.Models.Exceptions.StudentNotEnrolled e)
             {
-                    return NotFound(e);
+                    return NotFound(e.Message);
             }
-
-
         }
 
         [HttpPost]
         [Route("{courseId:int}/waitinglist")]
-        public IActionResult AddToWaitingList(int courseId, [FromBody] StudentViewModel waiting){
+        public IActionResult AddToWaitingList(int courseId, [FromBody] StudentViewModel waiting)
+        {
             
             if (waiting == null) { return BadRequest(); }
             
@@ -212,18 +211,37 @@ namespace Api.Controllers
             try
             {
                 var success = _coursesService.AddToWaitingList(courseId, waiting);
-                return Ok(success);
+                return Created(success.SSN, success);
 
             }catch(CoursesApi.Models.Exceptions.StudentNotExistsException e)
             {
-                    return BadRequest(e);
+                    return NotFound(e.Message);
             }catch(CoursesApi.Models.Exceptions.DuplicateWaitingException e)
             {
-                    return BadRequest(e);
+                    return StatusCode(412, e.Message);
             }catch(CoursesApi.Models.Exceptions.DublicateEnrolledException e)
             {
-                    return BadRequest(e);
-            }            
+                    return StatusCode(412, e.Message);
+            }catch(CoursesApi.Models.Exceptions.CourseNotExistsException e)
+            {
+                    return NotFound(e.Message);
+            }
+                        
+        }
+        [HttpGet]
+        [Route("{courseId:int}/waitinglist")]
+        public IActionResult GetWaitingList(int courseId)
+        {
+           if(!ModelState.IsValid){ return StatusCode(412); }
+          
+           try
+           {
+               var courses = _coursesService.GetWaitingList(courseId);
+               return Ok(courses);   
+           }catch(CoursesApi.Models.Exceptions.CourseNotExistsException e)
+           {
+               return NotFound(e.Message);
+           }
         }
     }
 }

@@ -56,9 +56,9 @@ namespace CoursesApi.Services
             return result;
         }
 
-        public bool DeleteStudentFromCourseById(int courseId, StudentViewModel deleteStudent)
+        public bool DeleteStudentFromCourseById(int courseId, string ssn)
         {
-            var result = _repo.DeleteStudentFromCourseById(courseId, deleteStudent);
+            var result = _repo.DeleteStudentFromCourseById(courseId, ssn);
             
             return result;
         }
@@ -73,7 +73,7 @@ namespace CoursesApi.Services
             return _repo.AddToWaitingList(courseId, waiting);
         }
 
-        public IEnumerable<StudentListItemDTO> GetWaitingList(int courseId)
+        public IEnumerable<StudentDTO> GetWaitingList(int courseId)
        {
            return _repo.GetWaitingList(courseId);
        }
