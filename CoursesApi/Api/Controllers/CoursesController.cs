@@ -198,6 +198,12 @@ namespace Api.Controllers
             }
         }
 
+        /// <summary>
+        /// Adds students to course waiting list
+        /// </summary>
+        /// <param name="courseId"></param>
+        /// <param name="waiting"></param>
+        /// <returns>Added student</returns>
         [HttpPost]
         [Route("{courseId:int}/waitinglist")]
         public IActionResult AddToWaitingList(int courseId, [FromBody] StudentViewModel waiting)
@@ -228,6 +234,12 @@ namespace Api.Controllers
             }
                         
         }
+
+        /// <summary>
+        /// Gets current waiting list for specific course
+        /// </summary>
+        /// <param name="courseId"></param>
+        /// <returns>Name and SSN for waiting list</returns>
         [HttpGet]
         [Route("{courseId:int}/waitinglist")]
         public IActionResult GetWaitingList(int courseId)
