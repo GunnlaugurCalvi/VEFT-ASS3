@@ -52,7 +52,8 @@ namespace CoursesApi.Repositories
                 Name = _db.CourseTemplates.Where(t => t.Template == course.CourseTemplate)
                                                          .Select(c => c.CourseName).FirstOrDefault(),
                 Students = (from sr in _db.Enrollments
-                           where sr.CourseId == course.Id
+                           where sr.CourseId == course.Id &&
+                            sr.Status == "Enrolled"
                            join s in _db.Students on sr.StudentSSN equals s.SSN
                            select new StudentDTO
                            {
@@ -91,7 +92,8 @@ namespace CoursesApi.Repositories
             }
 
             var students = (from sr in _db.Enrollments
-                            where sr.CourseId == courseId
+                            where sr.CourseId == courseId &&
+                            sr.Status == "Enrolled"
                             join s in _db.Students on sr.StudentSSN equals s.SSN
                             select new StudentDTO
                             {
@@ -172,8 +174,8 @@ namespace CoursesApi.Repositories
             // Removing deleted status                                    
             if(studentIsDeleted != null)
             {
-            studentIsWaiting.Status = "Enrolled";
-             _db.Enrollments.Update(studentIsWaiting);
+            studentIsDeleted.Status = "Enrolled";
+             _db.Enrollments.Update(studentIsDeleted);
             // Removing waiting status
             }else if(studentIsWaiting != null)
             {

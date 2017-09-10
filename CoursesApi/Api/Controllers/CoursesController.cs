@@ -208,6 +208,7 @@ namespace Api.Controllers
             
             if (!ModelState.IsValid) { return StatusCode(412); }
             
+            
             try
             {
                 var success = _coursesService.AddToWaitingList(courseId, waiting);
@@ -215,10 +216,7 @@ namespace Api.Controllers
 
             }catch(CoursesApi.Models.Exceptions.StudentNotExistsException e)
             {
-                    return NotFound(e);
-            }catch(CoursesApi.Models.Exceptions.CourseNotExistsException e)
-            {
-                    return NotFound(e);
+                    return BadRequest(e);
             }catch(CoursesApi.Models.Exceptions.DuplicateWaitingException e)
             {
                     return BadRequest(e);
@@ -227,20 +225,5 @@ namespace Api.Controllers
                     return BadRequest(e);
             }            
         }
-        [HttpGet]
-       [Route("{courseId:int}/waitinglist")]
-       public IActionResult GetWaitingList(int courseId)
-       {
-           if(!ModelState.IsValid){ return StatusCode(412); }
-          
-           try
-           {
-               var courses = _coursesService.GetWaitingList(courseId);
-               return Ok(courses);   
-           }catch(CoursesApi.Models.Exceptions.CourseNotExistsException e)
-           {
-               return NotFound(e);
-           }
-       }
     }
 }
