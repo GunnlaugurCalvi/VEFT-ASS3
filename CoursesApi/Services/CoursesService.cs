@@ -56,13 +56,21 @@ namespace CoursesApi.Services
             return result;
         }
 
+        public bool DeleteStudentFromCourseById(int courseId, StudentViewModel deleteStudent)
+        {
+            var result = _repo.DeleteStudentFromCourseById(courseId, deleteStudent);
+            
+            return result;
+        }
+
         public CourseDetailsDTO AddCourse(CourseViewModel newCourse)
         {
             return _repo.AddCourse(newCourse);
         }
-       /* public StudentDTO AddToWaitingList(int courseId, StudentViewModel waiting)
+       
+        public StudentDTO AddToWaitingList(int courseId, StudentViewModel waiting)
         {
             return _repo.AddToWaitingList(courseId, waiting);
-        }*/
+        }
     }
 }

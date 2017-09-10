@@ -5,17 +5,12 @@ using CoursesApi.Models.DTOModels;
 using CoursesApi.Models.EntityModels;
 using AutoMapper;
 using CoursesApi.Models.ViewModels;
+using CoursesApi.Models.Exceptions;
+
+
 
 namespace CoursesApi.Repositories
 {
-    public class DuplicateException : Exception
-    {
-        public DuplicateException() : base("I've Duplicated everywhere in space and cannot found this -Borat") { }
-    }
-    public class AlreadyExistsException : Exception
-    {
-        public AlreadyExistsException() : base("I've Exists everywhere in space and cannot found this -Borat") { }
-    }
     public class CoursesRepository : ICoursesRepository
     {
         private AppDataContext _db;
@@ -109,22 +104,86 @@ namespace CoursesApi.Repositories
 
         public StudentDTO AddStudentToCourse(int courseId, StudentViewModel newStudent)
         {
-            var course = (from c in _db.Courses
-                          where c.Id == courseId
-                          select c).SingleOrDefault();
-
-            var student = (from s in _db.Students
-                           where s.SSN == newStudent.SSN
-                           select s).SingleOrDefault();
-
-            if (course == null || student == null)
+            // Student needs to be a registered user
+            // Check if student exists
+            var studentExistsInDatabase = (from c in _db.Students
+                                            where c.SSN == newStudent.SSN
+                                            select c ).SingleOrDefault();
+            
+            if(studentExistsInDatabase == null)
             {
-                return null;
+                throw new StudentNotExistsException();
             }
 
-            _db.Enrollments.Add( 
-                new Enrollment {CourseId = courseId, StudentSSN = newStudent.SSN, Status = "Enrolled"}
-            );
+            // Check if course exists in database
+            var courseExistsInDatabase = (from c in _db.Courses
+                          where c.Id == courseId
+                          select c).SingleOrDefault();
+            
+            if(courseExistsInDatabase == null)
+            {
+                throw new CourseNotExistsException();
+            }
+
+            // Check course max capacity
+            var studentCapacity =   (from c in _db.Courses
+                                                where c.Id == courseId
+                                                select c ).SingleOrDefault();
+
+            // Check course capacity status
+            int studentCapacityStatus = (from c in _db.Enrollments
+                                            where c.CourseId == courseId &&
+                                            c.Status == "Enrolled"
+                                            select c).Count();
+
+            if(studentCapacity.MaxStudents == studentCapacityStatus)
+            {
+                throw new MaxCapacityException();
+            }      
+
+            // Check if student is already enrolled in course
+            var studentIsEnrolled = (from c in _db.Enrollments
+                                    where c.StudentSSN == newStudent.SSN &&
+                                    c.CourseId == courseId &&
+                                    c.Status == "Enrolled"
+                                    select c ).SingleOrDefault();
+
+            if(studentIsEnrolled != null)
+            {
+                throw new DublicateEnrolledException();
+            }
+
+            // Check if student is already on the waiting list
+            // before enrolling him
+            var studentIsWaiting = (from c in _db.Enrollments
+                                    where c.StudentSSN == newStudent.SSN &&
+                                    c.CourseId == courseId &&
+                                    c.Status == "Waiting"
+                                    select c ).SingleOrDefault();
+
+            // Check if student is deleted
+            // before enrolling him
+            var studentIsDeleted = (from c in _db.Enrollments
+                                    where c.StudentSSN == newStudent.SSN &&
+                                    c.CourseId == courseId &&
+                                    c.Status == "Deleted"
+                                    select c ).SingleOrDefault();
+            
+            // Removing deleted status                                    
+            if(studentIsDeleted != null)
+            {
+            studentIsWaiting.Status = "Enrolled";
+             _db.Enrollments.Update(studentIsWaiting);
+            // Removing waiting status
+            }else if(studentIsWaiting != null)
+            {
+            studentIsWaiting.Status = "Enrolled";
+             _db.Enrollments.Update(studentIsWaiting);
+            }else
+            {
+                _db.Enrollments.Add( new Enrollment {CourseId = courseId, StudentSSN = newStudent.SSN, Status = "Enrolled"});
+            }
+
             _db.SaveChanges();
 
             return new StudentDTO
@@ -174,27 +233,123 @@ namespace CoursesApi.Repositories
                     }).ToList()
             };
         }
-       /*public StudentDTO AddToWaitingList(int courseId, StudentViewModel waiting)
+       
+       public StudentDTO AddToWaitingList(int courseId, StudentViewModel waiting)
        {
-            var studentDuplicate = (from c in _db.Enrollments
-                         where c.Id == courseId &&
-                         c.StudentSSN == waiting.SSN
-                          select c).SingleOrDefault();
-            
-            var studentAlreadyInDatabase = (from c in _db.Students
+            // Student needs to be a registered user
+            // Check if student exists
+            var studentExistsInDatabase = (from c in _db.Students
                                             where c.SSN == waiting.SSN
                                             select c ).SingleOrDefault();
+
+            // If the student does not exist in database
+            // Throw exception
+            if(studentExistsInDatabase == null)
+            {
+                throw new StudentNotExistsException();
+            }
+
+            // Student cannot already be a registered user in course
+            // Checking if student in already in course either
+            // "Enrolled" or "Waiting"
+            var courseDublicate = (from c in _db.Enrollments
+                                            where c.StudentSSN == waiting.SSN &&
+                                            c.Id == courseId &&
+                                            c.Status == "Enrolled"
+                                            select c ).SingleOrDefault();
+           
+            // If the student is already registered in
+            // the specified course
+            // Throw exception
+            if(courseDublicate != null)
+            {
+                throw new DublicateEnrolledException();
+            }
+
+            // Student cannot already exist on the waiting list
+            // Check if student exists on waiting list
+            var studentDuplicate = (from c in _db.Enrollments
+                         where c.Id == courseId &&
+                         c.StudentSSN == waiting.SSN &&
+                         c.Status == "Waiting"
+                          select c).SingleOrDefault();
+
+            // If the student is already registered in
+            // the waiting list for course
+            // Throw exception
+            if(studentDuplicate != null)
+            {
+                throw new DuplicateWaitingException();
+            }
             
-            if(studentDuplicate == null)
+            _db.Enrollments.Add( 
+                new Enrollment {CourseId = courseId , StudentSSN = waiting.SSN, Status = "Waiting"}
+            );
+            _db.SaveChanges();
+
+            return new StudentDTO
             {
-                throw new DuplicateException();
-            }
-            if(studentAlreadyInDatabase == null)
+                SSN = waiting.SSN,
+                Name = (from st in _db.Students
+                       where st.SSN == waiting.SSN
+                       select st).SingleOrDefault().Name
+            };
+       }
+
+       public bool DeleteStudentFromCourseById(int courseId, StudentViewModel deleteStudent)
+        {
+            // Student needs to be a registered user
+            // Check if student exists
+            var studentExistsInDatabase = (from c in _db.Students
+                                            where c.SSN == deleteStudent.SSN
+                                            select c ).SingleOrDefault();
+            
+            if(studentExistsInDatabase == null)
             {
-                throw new AlreadyExistsException();
+                throw new StudentNotExistsException();
             }
-           return 
-       }*/
+
+            // Check if course exists in database
+            var courseExistsInDatabase = (from c in _db.Courses
+                          where c.Id == courseId
+                          select c).SingleOrDefault();
+            
+            if(courseExistsInDatabase == null)
+            {
+                throw new CourseNotExistsException();
+            }
+
+            // Check if student is already deleted in course
+            var studentIsDeleted = (from c in _db.Enrollments
+                                    where c.StudentSSN == deleteStudent.SSN &&
+                                    c.CourseId == courseId &&
+                                    c.Status == "Deleted"
+                                    select c ).SingleOrDefault();
+
+            if(studentIsDeleted != null)
+            {
+                throw new StudentDeletedException();
+            }
+
+            // Check if student in enrolled
+            var studentEnrolled = (from c in _db.Enrollments
+                                    where c.StudentSSN == deleteStudent.SSN &&
+                                    c.CourseId == courseId &&
+                                    c.Status == "Enrolled"
+                                    select c ).SingleOrDefault();
+                                    
+            if(studentEnrolled == null)
+            {
+                throw new StudentNotEnrolled();
+            }
+
+            studentEnrolled.Status = "Deleted";
+            _db.Enrollments.Update(studentEnrolled);
+            
+            _db.SaveChanges();
+
+            return true;
+        }
 
     }
 } 

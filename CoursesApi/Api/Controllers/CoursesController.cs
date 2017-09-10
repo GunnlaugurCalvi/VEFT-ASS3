@@ -7,6 +7,8 @@ using CoursesApi.Models.EntityModels;
 using CoursesApi.Models.ViewModels;
 using CoursesApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using CoursesApi.Repositories;
+using CoursesApi.Models.Exceptions;
 
 namespace Api.Controllers
 {
@@ -120,20 +122,31 @@ namespace Api.Controllers
         public IActionResult AddStudentToCourse(int courseId, [FromBody] StudentViewModel newStudent)
         {
             if (newStudent == null) { return BadRequest(); }
+            
             if (!ModelState.IsValid) { return StatusCode(412); }
-
-            var response = _coursesService.AddStudentToCourse(courseId, newStudent);
-
-            if (response == null)
+            
+            try
             {
-                return NotFound();
-            }
+                var response = _coursesService.AddStudentToCourse(courseId, newStudent);
+                return Ok(response);
 
-            return Ok(response);
+            }catch(CoursesApi.Models.Exceptions.StudentNotExistsException e)
+            {
+                    return BadRequest(e);
+            }catch(CoursesApi.Models.Exceptions.CourseNotExistsException e)
+            {
+                    return BadRequest(e);
+            }catch(CoursesApi.Models.Exceptions.DublicateEnrolledException e)
+            {
+                    return BadRequest(e);
+            }catch(CoursesApi.Models.Exceptions.MaxCapacityException e)
+            {
+                    return BadRequest(e);
+            }              
         }
 
         /// <summary>
-        /// Deletes a student from a course
+        /// Deletes a course
         /// </summary>
         /// <param name="courseId">The id of the course</param>
         /// <returns>A status code 204 (if successful)</returns>
@@ -150,21 +163,68 @@ namespace Api.Controllers
 
             return NoContent();
         }
-        /*[HttpPost]
-        [Route("{id:int}/waitinglist")]
-        public IActionResult AddToWaitingList(int courseId, [FromBody] StudentViewModel waiting){
-            if (waiting == null) { return BadRequest(); }
-            if (!ModelState.IsValid) { return StatusCode(412); }
-            
-            var response = _coursesService.AddToWaitingList(courseId, waiting);
 
-            if (response == null)
+        /// <summary>
+        /// Deletes a student from course
+        /// </summary>
+        /// <param name="courseId">The id of the course</param>
+        /// <param name="deleteStudent">Student SSN</param>
+        /// <returns>A status code 204 (if successful)</returns>
+        [HttpDelete]
+        [Route("{courseId:int}/students")]
+        public IActionResult DeleteStudentFromCourse(int courseId, [FromBody] StudentViewModel deleteStudent)
+        {
+            if (deleteStudent == null) { return BadRequest(); }
+            
+            if (!ModelState.IsValid) { return StatusCode(412); }
+
+            try
             {
-                return NotFound();
+                    var success = _coursesService.DeleteStudentFromCourseById(courseId, deleteStudent);
+                    return NoContent();
+                    
+            }catch(CoursesApi.Models.Exceptions.StudentNotExistsException e)
+            {
+                    return NotFound(e);
+            }catch(CoursesApi.Models.Exceptions.CourseNotExistsException e)
+            {
+                    return NotFound(e);
+            }catch(CoursesApi.Models.Exceptions.StudentDeletedException e)
+            {
+                    return BadRequest(e);
+            }catch(CoursesApi.Models.Exceptions.StudentNotEnrolled e)
+            {
+                    return NotFound(e);
             }
 
-            return Ok(response);
-        }*/
+
+        }
+
+        [HttpPost]
+        [Route("{courseId:int}/waitinglist")]
+        public IActionResult AddToWaitingList(int courseId, [FromBody] StudentViewModel waiting){
+            
+            if (waiting == null) { return BadRequest(); }
+            
+            if (!ModelState.IsValid) { return StatusCode(412); }
+            
+            
+            try
+            {
+                var success = _coursesService.AddToWaitingList(courseId, waiting);
+                return Ok(success);
+
+            }catch(CoursesApi.Models.Exceptions.StudentNotExistsException e)
+            {
+                    return BadRequest(e);
+            }catch(CoursesApi.Models.Exceptions.DuplicateWaitingException e)
+            {
+                    return BadRequest(e);
+            }catch(CoursesApi.Models.Exceptions.DublicateEnrolledException e)
+            {
+                    return BadRequest(e);
+            }            
+        }
 
         /*[HttpGet]
         [Route("{id:int}/waitinglist")]
